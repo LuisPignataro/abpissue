@@ -1,0 +1,148 @@
+@using Programarcr.Contabilidad.Cuentas
+@using Programarcr.Contabilidad.Localization
+@inject AbpBlazorMessageLocalizerHelper<ContabilidadResource> LH
+@inject ICuentaFormatProvider CuentaFormatProvider
+
+@inherits ModalCreateModel
+
+
+
+<Modal @ref="@ModalCreateRef">
+    <ModalContent IsCentered="true" Size="ModalSize.Large">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>
+                    @L["NewAccount:TitleChildOf"]
+                </ModalTitle>
+                <CloseButton Clicked="@HideModal" />
+            </ModalHeader>
+            <ModalBody>
+                
+                <Validations ValidateOnLoad="false" @ref="FormValidations" Model="@NuevaCuentaModel">
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is6">
+                            <Field>
+                                <FieldLabel>@L["NewAccount:NombreCuentaPadre"] : @NuevaCuentaModel.Parent.Nombre</FieldLabel>
+                            </Field>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is6">
+                            <Field>
+                                <FieldLabel>@L["NewAccount:NumeroCuentaPadre"] : @(NuevaCuentaModel.Parent.Id != null ? CuentaFormatProvider.AddFormat(NuevaCuentaModel.Parent.Id): "")</FieldLabel>
+                            </Field>
+                        </Column>
+                    </Row>
+
+                    <Divider DividerType="DividerType.Dotted" Class="mt-0"/>
+                    <Row>
+                        <Column ColumnSize="ColumnSize.Is6">
+                            <Validation MessageLocalizer="@LH.Localize" UsePattern="true">
+                                                    <Field>
+                                                        <FieldLabel>@L["NewAccount:Numero"]</FieldLabel>
+                                                        <FieldBody>
+                                                            <Addons>
+                                                                <Addon AddonType="AddonType.Start">
+                                                                    <AddonLabel>@NumeroCuentaPrefix</AddonLabel>
+                                                                </Addon>
+                                                                <Addon AddonType="AddonType.Body">
+                                                                    <TextEdit @bind-Text="@NuevaCuentaModel.Numero"
+                                                                               Autofocus="true"
+                                                                               Pattern="@NumeroCuentaRegEx"
+                                                                               MaxLength="@MaxLengthFormSize">
+                                                                        <Feedback>
+                                                                            <ValidationError/>
+                                                                        </Feedback>
+                                                                    </TextEdit>
+                                                                </Addon>
+                                                                <Addon AddonType="AddonType.End">
+                                                                    <AddonLabel>@NumeroCuentaSufix</AddonLabel>
+                                                                </Addon>
+                                                            </Addons>
+                                                        </FieldBody>
+                                                    </Field>
+                                                </Validation>
+                        </Column>
+                        <Column ColumnSize="ColumnSize.Is6">
+                            <Validation MessageLocalizer="@LH.Localize">
+                                                    <Field>
+                                                        <FieldLabel>@L["NewAccount:Nombre"]</FieldLabel>
+                                                        <TextEdit @bind-Text="@NuevaCuentaModel.Nombre">
+                                                            <Feedback>
+                                                                <ValidationError/>
+                                                            </Feedback>
+                                                        </TextEdit>
+                                                    </Field>
+                                                </Validation>
+                        </Column>
+                    </Row>
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["NewAccount:Moneda"]</FieldLabel>
+                            <Select TValue="string"
+                                    @bind-SelectedValue="@NuevaCuentaModel.MonedaId">
+                                <SelectItem TValue="string" Value="string.Empty">Seleccione una moneda</SelectItem>
+                                @foreach (var item in Monedas.Items)
+                                {
+                                    <SelectItem TValue="string" Value="item.Id">
+                                        @item.Nombre
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                    </Validation>
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["NewAccount:Balance"]</FieldLabel>
+                            <Select TValue="BalanceTypeEnum"
+                                    @bind-SelectedValue="@NuevaCuentaModel.TipoBalance">
+                                @foreach (int item in Enum.GetValues(typeof(BalanceTypeEnum)))
+                                {
+                                    <SelectItem TValue="BalanceTypeEnum" Value="@((BalanceTypeEnum) item)">
+                                        @(((BalanceTypeEnum) item).ToString())
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                    </Validation>
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["NewAccount:TipoCuenta"]</FieldLabel>
+                            <Select TValue="CuentaTypeEnum"
+                                    @bind-SelectedValue="@NuevaCuentaModel.TipoCuenta">
+                                @foreach (var item in Enum.GetValues(typeof(CuentaTypeEnum)))
+                                {
+                                    <SelectItem TValue="CuentaTypeEnum" Value="@((CuentaTypeEnum) item)">
+                                        @(((CuentaTypeEnum) item).ToString())
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                    </Validation>
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["NewAccount:CentroCostos"]</FieldLabel>
+                            <RadioGroup TValue="bool" @bind-CheckedValue="@NuevaCuentaModel.UtilizaCentroCostos">
+                                <Radio TValue="bool" Value="@true">Si</Radio>
+                                <Radio TValue="bool" Value="@false">No</Radio>
+                            </RadioGroup>
+                        </Field>
+                    </Validation>
+
+                </Validations>
+                
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="@HideModal">
+                    @L["Cancel"]
+                </Button>
+                <Button Color="Color.Primary"
+                        Type="@ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="CreateAccountAsync">
+                    @L["Save"]
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>

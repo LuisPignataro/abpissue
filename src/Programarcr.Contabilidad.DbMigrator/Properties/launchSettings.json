@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Programarcr.Contabilidad.DbMigrator": {
+      "commandName": "Project",
+      "commandLineArgs": "migrarDatos: true"
+    }
+  }
+}

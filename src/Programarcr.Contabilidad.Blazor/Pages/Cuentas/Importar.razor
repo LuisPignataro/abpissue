@@ -1,0 +1,84 @@
+﻿@page "/Cuentas/Importar"
+@using Programarcr.Contabilidad.Localization
+@using Programarcr.Contabilidad.Cuentas
+@inject AbpBlazorMessageLocalizerHelper<ContabilidadResource> LH
+@inject ICuentaFormatProvider CuentaFormatProvider
+@inherits PruebaImportacionCuentasModel
+
+<Card Class="mb-5">
+    <CardHeader>
+        <Row Class="justify-content-between">
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <h2>@L["ImportCuentasPageTitle"]</h2>
+            </Column>
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <a class="btn btn-outline-primary" href="/plantilla/plantillacuentas.xlsx">@L["Import:DownloadTemplateImportCuenta"]</a>
+            </Column>
+        </Row>
+    </CardHeader>
+    <CardBody>
+        <Field>
+            <FieldLabel>@L["Import:SelectFileToImport"] :</FieldLabel>
+            <FileEdit @ref="@fileEdit"
+                      AutoReset="false"
+                      Changed="@OnChanged"
+                      Multiple="false"
+                      Filter=".xlsx" />
+        </Field>
+
+        @if (Cuentas.Any())
+        {
+            <Table Narrow="true" Hoverable="true" Striped="true">
+                <TableHeader>
+                    <TableRow>
+                        <TableHeaderCell Style="width: 250px">@L["Import:Row:NumeroCuenta"]</TableHeaderCell>
+                        <TableHeaderCell Style="width: 100px">@L["Import:Row:TipoCuenta"]</TableHeaderCell>
+                        <TableHeaderCell Style="width: 100px">@L["Import:Row:Moneda"]</TableHeaderCell>
+                        <TableHeaderCell Style="width: 100px">@L["Import:Row:TipoBalance"]</TableHeaderCell>
+                        <TableHeaderCell>@L["Import:Row:Nombre"]</TableHeaderCell>
+                        @if (ShowResultReadExcel)
+                        {
+                            <TableHeaderCell Style="width: 100px">@L["Import:RowNombreResultadoDeLectura"]</TableHeaderCell>
+                        }
+                        @if (CuentasInportadasEvent)
+                        {
+                            <TableHeaderCell Style="width: 250px">@L["Import:RowNombreResultado"]</TableHeaderCell>
+                        }
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    @foreach (var item in Cuentas)
+                    {
+                        <TableRow>
+                            <TableRowCell>@CuentaFormatProvider.AddFormat(item.NumeroCuenta)</TableRowCell>
+                            <TableRowCell>@item.TipoCuenta </TableRowCell>
+                            <TableRowCell>@item.Moneda</TableRowCell>
+                            <TableRowCell>@item.TipoBalance</TableRowCell>
+                            <TableRowCell>@item.Nombre</TableRowCell>
+                            @if (item.IsValid)
+                            {
+                                <TableRowCell><span class="badge badge-primary">Ok</span></TableRowCell>
+                            }
+                            else
+                            {
+                                <TableRowCell><span class="badge badge-danger">@item.Resultado</span></TableRowCell>
+                            }
+                        </TableRow>
+                    }
+                </TableBody>
+            </Table>
+        }
+
+    </CardBody>
+    <CardFooter>
+        <Row Class="justify-content-between">
+            <Column ColumnSize="ColumnSize.IsAuto">
+            </Column>
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <Button Color="Color.Info"
+                        Disabled="DisabledButtonImport"
+                        Clicked="ButtonImportPressed">@L["Import:ImportCuentas"]</Button>
+            </Column>
+        </Row>
+    </CardFooter>
+</Card>

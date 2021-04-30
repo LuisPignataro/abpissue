@@ -1,0 +1,63 @@
+﻿@page "/Cuentas"
+@using Programarcr.Contabilidad.Cuentas
+@using Programarcr.Contabilidad.Localization
+@inject AbpBlazorMessageLocalizerHelper<ContabilidadResource> LH
+@inject ICuentaFormatProvider CuentaFormatProvider
+@inherits Programarcr.Contabilidad.Blazor.Pages.Cuentas.IndexModel
+
+
+<Row>
+    <Column ColumnSize="ColumnSize.Is12">
+        <Card>
+            <CardHeader>
+                <Row Class="justify-content-between">
+                    <Column ColumnSize="ColumnSize.IsAuto">
+                        <h3>@L["Cuentas"]</h3>
+                    </Column>
+                    <Column ColumnSize="ColumnSize.IsAuto">
+                        <a href="/Cuentas/Importar" class="btn btn-outline-primary mx-3">@L["Import:InportCuentasLink"]</a>
+                        <Button Color="Color.Primary"
+                                Disabled="@(selectedNode == null)"
+                                Clicked="ShowCreateAccountComponent">
+                            @L["NewAccount:ButtonCreate"]
+                        </Button>
+                    </Column>
+                </Row>
+            </CardHeader>
+            <CardBody>
+                <Row>
+                    <Column ColumnSize="ColumnSize.Is6">
+                        <Blazorise.TreeView.TreeView Nodes="Cuentas"
+                                                     TNode="CuentaDto"
+                                                     GetChildNodes="@(item => GetChildren(item))"
+                                                     HasChildNodes="@(item => item.HasChildren)"
+                                                     @bind-ExpandedNodes="ExpandedNodes"
+                                                     SelectedNodeChanged="@TreeNodeChanged">
+                            <NodeContent>@context.Nombre</NodeContent>
+                        </Blazorise.TreeView.TreeView>
+                    </Column>
+
+                    <Column ColumnSize="ColumnSize.Is6">
+                        <DataGrid TItem="CuentaDto"
+                                  Data="DataPanel"
+                                  TotalItems="DataPanel.Count()"
+                                  ShowPager="false">
+                            <DataGridColumns>
+                                <DataGridColumn TItem="CuentaDto"
+                                                Field="@nameof(CuentaDto.Nombre)"
+                                                Caption="@L["Nombre"]"></DataGridColumn>
+                                <DataGridColumn TItem="CuentaDto"
+                                                Field="@nameof(CuentaDto.Id)"
+                                                Caption="@L["Numero"]">
+                                </DataGridColumn>
+                            </DataGridColumns>
+                        </DataGrid>
+                    </Column>
+                </Row>
+            </CardBody>
+        </Card>
+
+    </Column>
+</Row>
+
+<ModalCreate @ref="ModalCreateComponent" OnNewAccountCreated="@NewAccuntIsCreated" />

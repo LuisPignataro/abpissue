@@ -1,0 +1,30 @@
+﻿@using System.Globalization
+@inherits MesContableEditModel
+
+<CascadingValue Value="@InternalValidation">
+    <Row Class="mb-2">
+        <Column ColumnSize="ColumnSize.Is6" Class="pr-1">
+            <Select @bind-SelectedValue="@InternalMes"
+                    @bind-Disabled="Disabled"
+                    TValue="int">
+                @foreach (var month in Enumerable.Range(1, 12))
+                {
+                    <SelectItem TValue="int" Value="month">
+                        @CultureInfo.CreateSpecificCulture("es").DateTimeFormat.GetMonthName(month)
+                    </SelectItem>
+                }
+            </Select>
+        </Column>
+        <Column ColumnSize="ColumnSize.Is6" Class="pl-1">
+            <TextEdit @bind-Text="InternalAño"
+                      @bind-Disabled="Disabled"
+                      Placeholder="Año"
+                      MaxLength="4"
+                      Pattern="@("\\d{4}")">
+            </TextEdit>
+        </Column>
+    </Row>
+
+    @ChildContent
+    @Feedback
+</CascadingValue>

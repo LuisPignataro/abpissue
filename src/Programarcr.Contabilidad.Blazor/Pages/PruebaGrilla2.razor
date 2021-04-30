@@ -1,0 +1,183 @@
+﻿@page "/PruebaGrilla2"
+@inherits Contabilidad.Blazor.Pages.PruebaGrilla2Model
+
+<Row>
+    <Column ColumnSize="ColumnSize.Is4">
+        <Field>
+            <FieldLabel>Fecha</FieldLabel>
+            <DateEdit TValue="DateTime?"></DateEdit>
+        </Field>
+    </Column>
+    <Column ColumnSize="ColumnSize.Is8">
+        <Field>
+            <FieldLabel>Descripcion</FieldLabel>
+            <TextEdit></TextEdit>
+        </Field>
+    </Column>
+</Row>
+
+<Row>
+    <Column>
+        <Card Margin="Margin.Is4.OnY">
+            <CardBody>
+                <DataGrid
+                    @ref="DataGrid"
+                    TItem="AsientoContableViewModel"
+                          Data="Asientos"
+                          EditMode="@DataGridEditMode.Form"
+                          Editable="@true"
+                          
+                          Sortable="@false"
+                          SortMode="@DataGridSortMode.Single"
+                          SelectionMode="DataGridSelectionMode.Single"
+                          
+                          Filterable="@false"
+                          ShowPager="@false"
+                          ShowPageSizes="@false"
+                          PageSize="1000"
+                          UseInternalEditing="true"
+                          
+                          @bind-SelectedRow="@SelectedAsientoContable"
+                    
+                          Striped="true"
+                          Bordered="true"
+                          Hoverable="true"
+                          Responsive="true"
+                          ValidationsSummaryLabel="Se encontro errores de validacion">
+                          
+                    <EmptyTemplate>No hay datos</EmptyTemplate>
+                    <DataGridColumns>
+
+                        <DataGridCommandColumn TItem="AsientoContableViewModel" Width="200px">
+                            <NewCommandTemplate>
+                                <Button Color="Color.Success" Clicked="@context.Clicked">Nuevo</Button>
+                            </NewCommandTemplate>
+                            <EditCommandTemplate>
+                                <Button Color="Color.Primary" Clicked="@context.Clicked">Editar</Button>
+                            </EditCommandTemplate>
+                            <SaveCommandTemplate>
+                                <Button Color="Color.Primary" Clicked="@context.Clicked">Guardar</Button>
+                            </SaveCommandTemplate>
+                            <DeleteCommandTemplate>
+                                <Button Color="Color.Danger" Clicked="@context.Clicked">Eliminar</Button>
+                            </DeleteCommandTemplate>
+                            <CancelCommandTemplate>
+                                <Button Color="Color.Secondary" Clicked="@context.Clicked">Cancelar</Button>
+                            </CancelCommandTemplate>
+                            <ClearFilterCommandTemplate>
+                                <Button Color="Color.Warning" Clicked="@context.Clicked">Limpiar filtro</Button>
+                            </ClearFilterCommandTemplate>
+                        </DataGridCommandColumn>
+                        
+                        
+                        <DataGridColumn TextAlignment="TextAlignment.Center"
+                                        TItem="AsientoContableViewModel"
+                                        Field="@nameof(AsientoContableViewModel.CuentaId)"
+                                        Caption="Cuenta"
+                                        Sortable="false"
+                                        Editable="true"
+                                        Width="60px">
+                            <EditTemplate>
+                                <SfAutoComplete @ref="AutoCompleteRef"
+                                                 TValue="string" TItem="SelectCuentaViewModelItem" Placeholder="Ingrese un nombre o numero de cuenta" DataSource="@CuentaSelectList">
+                                    <AutoCompleteFieldSettings Value="Name"></AutoCompleteFieldSettings>
+                                    <AutoCompleteEvents TValue="string" TItem="SelectCuentaViewModelItem" Filtering="@OnFilter"></AutoCompleteEvents>
+                                </SfAutoComplete>
+                            </EditTemplate>
+                        </DataGridColumn>
+
+                        <DataGridNumericColumn TItem="AsientoContableViewModel" Field="@nameof( AsientoContableViewModel.Monto )" Caption="Monto" Editable="true"/>
+                        
+                        <DataGridColumn TItem="AsientoContableViewModel"
+                                        Field="@nameof(AsientoContableViewModel.Descripcion)"
+                                        Caption="Descripcion"
+                                        Editable="true"
+                                        Validator="@DescriptionValidation"
+                                        PopupFieldColumnSize="ColumnSize.IsFull.OnDesktop" />
+                        
+                        <DataGridSelectColumn TItem="AsientoContableViewModel"
+                                              Field="@nameof(AsientoContableViewModel.TipoDocumento)"
+                                              Caption="Tipo Documento"
+                                              Editable="true">
+                            <EditTemplate>
+                                <Select TValue="string"
+                                        SelectedValue="@((string) (context.CellValue))"
+                                        SelectedValueChanged="@((v) => context.CellValue = v)">
+                                    <SelectItem TValue="string" Value="@(string.Empty)">Seleccione una opcion</SelectItem>
+                                    <SelectItem TValue="string" Value="@("DNI")">Documento nacional de identidad</SelectItem>
+                                </Select>
+                            </EditTemplate>
+                        </DataGridSelectColumn>
+                        <DataGridColumn TItem="AsientoContableViewModel" Field="@nameof(AsientoContableViewModel.NumeroDocumento)" Caption="Documento" Editable="true">
+                            
+                        </DataGridColumn>
+                        
+                        <DataGridSelectColumn TItem="AsientoContableViewModel"
+                                              Field="@nameof(AsientoContableViewModel.MonedaId)" 
+                                              Caption="Moneda" 
+                                              Editable="true">
+                            <EditTemplate>
+                                <Select TValue="string"
+                                        SelectedValue="@((string) (context.CellValue))"
+                                        SelectedValueChanged="@((v) => context.CellValue = v)">
+                                    <SelectItem TValue="string" Value="@(string.Empty)">Seleccione una opcion</SelectItem>
+                                    @foreach (var item in MonedaSelectList)
+                                    {
+                                        <SelectItem TValue="string" Value="@item.Id">@($"{item.Id} {item.Nombre} {item.Cambio}")</SelectItem>
+                                    }
+                                </Select>
+                            </EditTemplate>
+                        </DataGridSelectColumn>
+                        
+                        <DataGridColumn TItem="AsientoContableViewModel" Field="@nameof(AsientoContableViewModel.Movimiento)" Caption="Movimiento" Editable="true"/>
+
+                        
+                        <DataGridSelectColumn TItem="AsientoContableViewModel" Field="@nameof( AsientoContableViewModel.Referencia )" Caption="Referencia" Editable="true">
+                            <DisplayTemplate>
+                                @{
+                                    var referencia = ( context as AsientoContableViewModel )?.Referencia;
+                        
+                                    @if ( referencia.HasValue)
+                                    {
+                                        @("opcion 1")
+                                    }
+                                    else
+                                    {
+                                        @("otra opcion null")
+                                    }
+                                }
+                            </DisplayTemplate>
+                            <EditTemplate>
+                                <Select TValue="int" SelectedValue="@((int) (context.CellValue))" SelectedValueChanged="@((v) => context.CellValue = v)">
+                                    <SelectItem TValue="int" Value="0"></SelectItem>
+                                    <SelectItem TValue="int" Value="1">opcion 1</SelectItem>
+                                    <SelectItem TValue="int" Value="2">opcion 2</SelectItem>
+                                </Select>
+                            </EditTemplate>
+                        </DataGridSelectColumn>
+                        
+                        <DataGridColumn TItem="AsientoContableViewModel"
+                                        Field="@nameof(AsientoContableViewModel.TipoCambio)"
+                                        Caption="TipoCambio"
+                                        Editable="true"
+                                        Width="140px"
+                                        DisplayFormat="{0:C}"
+                                        DisplayFormatProvider="@System.Globalization.CultureInfo.GetCultureInfo("es")"
+                                        TextAlignment="TextAlignment.Right">
+                            <EditTemplate>
+                                <NumericEdit TValue="decimal" Value="@((decimal)( context.CellValue ))" ValueChanged="@(( v ) => context.CellValue = v)" />
+                            </EditTemplate>
+                        </DataGridColumn>
+
+                        
+                    </DataGridColumns>
+                    
+                    <EmptyCellTemplate>
+                        <Text Style="opacity: .5;">--</Text>
+                    </EmptyCellTemplate>
+
+                </DataGrid>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>

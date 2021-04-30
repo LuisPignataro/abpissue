@@ -1,0 +1,135 @@
+﻿@page "/configuracion/Centrodecostos"
+@using Volo.Abp.Application.Dtos
+@using Programarcr.Contabilidad.Localization
+@using Programarcr.Contabilidad.Configuracion
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<ContabilidadResource> L
+@inject AbpBlazorMessageLocalizerHelper<ContabilidadResource> LH
+
+@inherits Programarcr.Contabilidad.Blazor.Pages.Configuracion.CentroCostoBase
+
+<Card>
+    <CardHeader>
+        <Row Class="justify-content-between">
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <h2>@L["Page:CentroCosto:Title"]</h2>
+            </Column>
+            <Column ColumnSize="ColumnSize.IsAuto">
+                <Button Color="Color.Primary"
+                        Clicked="OpenCreateModalAsync">
+                    @L["Page:CentroCosto:Nuevo"]
+                    </Button>
+                </Column>
+            </Row>
+        </CardHeader>
+
+    <CardBody>
+        <DataGrid TItem="CentroCostoDto"
+                  Data="Entities"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  Sortable="false"
+                  ShowPager="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="CentroCostoDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="CentroCostoDto"
+                                       EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="CentroCostoDto"
+                                          Text="@L["Page:CentroCosto:EditOption"]"
+                                          RequiredPolicy="@UpdatePolicyName"
+                                          Clicked="() => OpenEditModalAsync(context)" />
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+                <DataGridColumn TItem="CentroCostoDto"
+                                Field="@nameof(CentroCostoDto.Nombre)"
+                                Caption="@L["Page:CentroDeCosto:Nombre"]">
+                    <DisplayTemplate>
+                        @context.Nombre
+                    </DisplayTemplate>
+                </DataGridColumn>
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+
+<Modal @ref="@CreateModal">
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>
+                    @L["Page:NewCentroCosto"]
+                </ModalTitle>
+                <CloseButton Clicked="CloseCreateModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations ValidateOnLoad="false" @ref="CreateValidationsRef" Model="@NewEntity">
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Page:CentroDeCosto:Nombre"]</FieldLabel>
+                            <TextEdit TValue="string" @bind-Text="@NewEntity.Nombre">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="@CloseCreateModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <Button Color="Color.Primary"
+                        Type="@ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="CreateEntityAsync">
+                    @L["Save"]
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+<Modal @ref="@EditModal">
+    <ModalContent IsCentered="true">
+        <Form>
+            <ModalHeader>
+                <ModalTitle>
+                    @L["Page:EditCentroCosto"]
+                </ModalTitle>
+                <CloseButton Clicked="CloseEditModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations ValidateOnLoad="false" @ref="EditValidationsRef" Model="@EditingEntity">
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Page:CentroDeCosto:Nombre"]</FieldLabel>
+                            <TextEdit TValue="string" @bind-Text="@EditingEntity.Nombre">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <Button Color="Color.Primary"
+                        Type="@ButtonType.Submit"
+                        PreventDefaultOnSubmit="true"
+                        Clicked="UpdateEntityAsync">
+                    @L["Save"]
+                </Button>
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
